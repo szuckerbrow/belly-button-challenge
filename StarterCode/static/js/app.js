@@ -1,25 +1,18 @@
-// set variable for url to samples.json
+// set constant variable for url to samples.json
 const samplesUrl = "https://2u-data-curriculum-team.s3.amazonaws.com/dataviz-classroom/v1.1/14-Interactive-Web-Visualizations/02-Homework/samples.json";
-
-function init() {
-    // Placeholder data for initialization
-    var data = [{
-        x: [1, 2, 3, 4, 5],
-        y: [1, 2, 4, 8, 16]
-    }];
-
-    Plotly.newPlot("bar", data);
-};
 
 // Fetch the json data and console log it
 d3.json(samplesUrl).then(function(jsonData) {
-    // console.log(jsonData);
+    console.log(jsonData);
 
     // Store the JSON data in a variable
     var samples = jsonData.samples;
     
     // extract IDs
     var ids = jsonData.names;
+
+    // extract otu_labels
+    var otuLabels = samples.otu_labels;
 
     // Populate dropdown menu with options
     var dropdownMenu = d3.select("#selDataset");
@@ -39,13 +32,17 @@ d3.json(samplesUrl).then(function(jsonData) {
         let selectedSample = samples.find(sample => sample.id === dataset);
         
         // Extract required data for plotting
-        let xValues = selectedSample.sample_values.slice(0, 10);
-        let yValues = selectedSample.otu_ids.map(id => "OTU " + id).slice(0, 10);
+        // sliced for top 10
+        let sampleValues = selectedSample.sample_values.slice(0, 10);
+        let otuIds = selectedSample.otu_ids.map(id => "OTU " + id).slice(0, 10);
+        // not sliced
+        let sampleValuesFull = selectedSample.sample_values;
+        let otuIdsFull = selectedSample.otu_ids;
 
         // create new trace
         let trace1 = {
-            x: xValues,
-            y: yValues,
+            x: sampleValues,
+            y: otuIds,
             type: "bar",
             orientation: "h"
         };
@@ -58,13 +55,36 @@ d3.json(samplesUrl).then(function(jsonData) {
         };
 
         //Data array
-        let plotData = [trace1];
+        let plotData1 = [trace1];
 
         // Log plotData to the console to inspect its structure
-        console.log(plotData);
+        console.log(plotData1);
 
         // Update the plot with the new trace
-        Plotly.newPlot("bar", plotData, layout);    
+        Plotly.newPlot("bar", plotData1, layout);
+        
+        // Create a bubble chart that displays each sample
+        // otu_ids for marker colors
+
+        // create new trace
+        let trace2 = {
+            x: otuIdsFull,
+            y: sampleValuesFull,
+            type: "scatter",
+            marker: {
+                size: sampleValuesFull,
+                color: otuIdsFull,
+                colorscale: "Earth"
+            },
+            mode: "markers",
+            text: otuLabels
+        };
+
+        //Data array
+        let plotData2 = [trace2];
+
+        // Update the plot with the new trace
+        Plotly.newPlot("bubble", plotData2);   
     }   
 
     // Function to handle dropdown menu changes
@@ -74,3 +94,4 @@ d3.json(samplesUrl).then(function(jsonData) {
 
 });
 
+   
