@@ -1,97 +1,103 @@
 // set constant variable for url to samples.json
 const samplesUrl = "https://2u-data-curriculum-team.s3.amazonaws.com/dataviz-classroom/v1.1/14-Interactive-Web-Visualizations/02-Homework/samples.json";
 
-// Fetch the json data and console log it
-d3.json(samplesUrl).then(function(jsonData) {
-    console.log(jsonData);
+var samplesJson;
 
-    // Store the JSON data in a variable
-    var samples = jsonData.samples;
-    
-    // extract IDs
-    var ids = jsonData.names;
+// Initialize dashboard at startup
+function init() {
 
-    // extract otu_labels
-    var otuLabels = samples.otu_labels;
-
-    // Populate dropdown menu with options
+    // Use d3 to select dropdown menu
     var dropdownMenu = d3.select("#selDataset");
-    ids.forEach(id => {
-        dropdownMenu.append("option").attr("value", id).text(id);
+
+    // Use d3 to get sample names and populate dropdown menu
+    d3.json(samplesUrl).then(function(jsonData) {
+        samplesJson = jsonData;
+
+        // extract ids (sample names)
+        var ids = samplesJson.names;
+
+        // add ids to dropdown menu
+        ids.forEach((id) => {
+            dropdownMenu.append("option").attr("value", id).text(id);
+        });
+
+    // Set up event listener for changes in dropdown menu
+    d3.selectAll("#selDataset").on("change", optionChanged);
+    
+    // extract first id to set up initial plot
+    let sampleStart = ids[0];
+    // console.log(sampleStart); // verify correct id
+
+    // send to buildCharts for initial charts
+    buildCharts(sampleStart);
+    metadataBox(sampleStart);            
     });
+};
 
-    // Set up event listener for dropdown menu
-    d3.selectAll("#selDataset").on("change", getData);
+function buildCharts(value) {
+    let sampleDataFiltered = samplesJson.samples.find(result => result.id == value);
+    // console.log('Sample Data Filtered:', sampleDataFiltered);
+    console.log(sampleDataFiltered);
 
-    // Function to handle dropdown menu changes
-    function getData() {
-        let dropdownMenu = d3.select("#selDataset");
-        let dataset = dropdownMenu.property("value");
+     //extract sample_values, otu_ids, and otu_labels
+     var sampleValues = sampleDataFiltered.sample_values;    
+     var otuIds = sampleDataFiltered.otu_ids; 
+     var otuLabels = sampleDataFiltered.otu_labels;
 
-        // Filter samples data based on the selected dataset ID
-        let selectedSample = samples.find(sample => sample.id === dataset);
-        
-        // Extract required data for plotting
-        // sliced for top 10
-        let sampleValues = selectedSample.sample_values.slice(0, 10);
-        let otuIds = selectedSample.otu_ids.map(id => "OTU " + id).slice(0, 10);
-        // not sliced
-        let sampleValuesFull = selectedSample.sample_values;
-        let otuIdsFull = selectedSample.otu_ids;
+    let trace1 = {
+        x: sampleValues.slice(0,10).reverse(),
+        y: otuIds.map(id => "OTU " + id).slice(0,10).reverse(), // add "OTU" to each id
+        type: "bar",
+        orientation: "h"
+    };
 
-        // create new trace
-        let trace1 = {
-            x: sampleValues,
-            y: otuIds,
-            type: "bar",
-            orientation: "h"
-        };
+    let barData = [trace1];
 
-        // reverse the y-axis to match instructions
-        let layout = {
-            yaxis: {
-                autorange: "reversed"
-            }
-        };
+    Plotly.newPlot("bar", barData);
 
-        //Data array
-        let plotData1 = [trace1];
+    // Create a bubble chart that displays each sample
+    // create new trace
+    let trace2 = {
+        x: otuIds,
+        y: sampleValues,
+        type: "scatter",
+        marker: {
+            size: sampleValues,
+            color: otuIds,
+            colorscale: "Earth"
+        },
+        mode: "markers",
+        text: otuLabels
+    };
 
-        // Log plotData to the console to inspect its structure
-        console.log(plotData1);
+    //Data array
+    let plotData2 = [trace2];
 
-        // Update the plot with the new trace
-        Plotly.newPlot("bar", plotData1, layout);
-        
-        // Create a bubble chart that displays each sample
-        // otu_ids for marker colors
+    // Update the plot with the new trace
+    Plotly.newPlot("bubble", plotData2);
+};
 
-        // create new trace
-        let trace2 = {
-            x: otuIdsFull,
-            y: sampleValuesFull,
-            type: "scatter",
-            marker: {
-                size: sampleValuesFull,
-                color: otuIdsFull,
-                colorscale: "Earth"
-            },
-            mode: "markers",
-            text: otuLabels
-        };
+function metadataBox(value) {
+    var metadataFiltered = samplesJson.metadata.find(result => result.id == value);
+    
+    // Clear previous content of the metadata panel
+    d3.select("#sample-metadata").html("");
 
-        //Data array
-        let plotData2 = [trace2];
+    // Use Object.entries to get key/value pairs of the metadata object
+    Object.entries(metadataFiltered).forEach(([key, value]) => {
+        // Log the individual key/value pairs as they are being appended to the metadata panel
+        console.log(key, value);
+        // Append an h5 element to the element with the ID 'sample-metadata' and set its text content to the current key-value pair
+        d3.select("#sample-metadata").append("h5").text(key + ": " + value);
+    });
+};
 
-        // Update the plot with the new trace
-        Plotly.newPlot("bubble", plotData2);   
-    }   
+function optionChanged(value) {
+    console.log("buildCharts called with value:", value); // check to see how many times this function is being called
+    // call the bar chart with the value from the dropdown menu
+    buildCharts(value);
+    metadataBox(value); 
+};
 
-    // Function to handle dropdown menu changes
-    function optionChanged(value) {
-        getData();
-    }
-
-});
-
-   
+// call the initialize function
+init();
