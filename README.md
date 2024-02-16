@@ -1,6 +1,6 @@
 # Belly Button Challenge
 
-<p align='left'> <img src='images/dashboard.PNG'></p>
+<p align='left'> <img src='images/dashboard.png'></p>
 
 ## Deployment
 * Here is a link to the dashboard: https://szuckerbrow.github.io/belly-button-challenge/
