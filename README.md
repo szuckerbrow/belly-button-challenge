@@ -30,10 +30,10 @@ Complete the following steps:
 
 <div style="display: flex;">
     <div style="flex: 1;">
-        <p align='left'> <img src='images/dropdown.PNG'></p>
+        <p align='left'> <img src='images/dropdown.png'></p>
     </div>
     <div style="flex: 1;">
-        <p align='center'> <img src='images/hbarchart.PNG'></p>
+        <p align='center'> <img src='images/hbarchart.png'></p>
     </div>
 </div>
 
@@ -50,13 +50,13 @@ Complete the following steps:
 
    - Use ```otu_labels`` for the text values.
 
-<p align='center'> <img src='images/bubblechart.PNG'></p>
+<p align='center'> <img src='images/bubblechart.png'></p>
 
 4. Display the sample metadata, i.e., an individual's demographic information.
 
 5. Display each key-value pair from the metadata JSON object somewhere on the page.
 
-<p align='left'> <img src='images/metadata.PNG'></p>
+<p align='left'> <img src='images/metadata.png'></p>
 
 6. Update all the plots when a new sample is selected. Additionally, you are welcome to create any layout that you would like for your dashboard.
 
