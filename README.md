@@ -33,7 +33,7 @@ Complete the following steps:
         <p align='left'> <img src='images/dropdown.png'></p>
     </div>
     <div style="flex: 1;">
-        <p align='center'> <img src='images/hbarchart.png'></p>
+        <p align='right'> <img src='images/hbarchart.png'></p>
     </div>
 </div>
 
